@@ -55,4 +55,49 @@ dns:
 proxy-providers:
   Romania:
     type: http
-    url: 
+    url: "https://cdn.jsdelivr.net/gh/Au1rxx/free-vpn-subscriptions@main/output/clash-RO.yaml"
+    interval: 3600
+    path: ./providers/romania.yaml
+    health-check:
+      enable: true
+      url: http://www.gstatic.com/generate_204
+      interval: 300
+      timeout: 5000
+
+proxy-groups:
+  - name: 🇷🇴 Romania
+    type: select
+    use:
+      - Romania
+    proxies:
+      - REJECT
+      - DIRECT
+
+  - name: Auto Romania
+    type: url-test
+    url: http://www.gstatic.com/generate_204
+    interval: 300
+    tolerance: 50
+    lazy: true
+    use:
+      - Romania
+
+  - name: PROXY
+    type: select
+    proxies:
+      - Auto Romania
+      - 🇷🇴 Romania
+      - DIRECT
+
+  - name: FINAL
+    type: select
+    proxies:
+      - PROXY
+      - DIRECT
+      - REJECT
+
+rules:
+  - GEOIP,IR,DIRECT,no-resolve
+  - GEOSITE,ir,DIRECT
+  - GEOSITE,category-ads-all,REJECT
+  - MATCH,FINAL
